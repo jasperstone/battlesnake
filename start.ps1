@@ -19,6 +19,5 @@ wt --window 0 new-tab -p $terminalProfile -d . `
         --name "us" `
         --url http://localhost:8000 `
         --name "them" `
-        --url http://localhost:8001 `
-        --browser
+        --url http://localhost:8001
     }
