@@ -1,5 +1,5 @@
 $dateString = Get-Date -Format "yyyMMdd_HHmm"
-$outFolder = "$PSScriptRoot/tests/$dateString"
+$outFolder = "$PSScriptRoot/test_output/$dateString"
 
 if (!(Test-Path $outFolder)) {
     New-Item -ItemType Directory -Path $outFolder
