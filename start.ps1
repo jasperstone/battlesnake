@@ -10,7 +10,7 @@ wt --window 0 new-tab -p $terminalProfile -d . `
         python simple.py --port 8001 --seed 0
     }
 
-Start-Sleep 3
+Start-Sleep 6
 wt --window 0 new-tab -p $terminalProfile -d . `
     pwsh -noExit -Command { `
         .\battlesnake.exe play `
@@ -19,5 +19,6 @@ wt --window 0 new-tab -p $terminalProfile -d . `
         --name "us" `
         --url http://localhost:8000 `
         --name "them" `
-        --url http://localhost:8001
+        --url http://localhost:8001 `
+        --browser
     }

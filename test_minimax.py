@@ -40,7 +40,7 @@ class TestMain(unittest.TestCase):
             snake = main.get_current_snake(game_state, False)
             self.assertEqual(snake["id"], "44bc903b-327a-4bbe-94cd-471821f37cbd")
 
-    def test_process_move(self):
+    def test_process_move_eating_food(self):
         with open("responses\\test_process_move.json") as reader:
             game_state = json.load(reader)
             new_state = main.process_move(game_state, "up", True)
@@ -50,6 +50,16 @@ class TestMain(unittest.TestCase):
             self.assertEqual(len(our_snake["body"]), 3)
             self.assertEqual(our_snake["head"], {"x": 10, "y": 7})
             self.assertEqual(our_snake["health"], 100)
+
+    @unittest.skip("not implemented yet")
+    def test_process_move_not_eating_food(self):
+        self.assertTrue(True)
+
+    def test_minimax(self):
+        with open("responses\\test_process_move.json") as reader:
+            game_state = json.load(reader)
+            value, best_move = main.minimax(game_state, 2, True)
+            self.assertEqual(best_move, "up")
 
 if __name__ == '__main__':
     unittest.main()

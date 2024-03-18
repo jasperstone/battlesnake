@@ -13,7 +13,7 @@
 import random
 import typing
 import sys
-
+import copy
 
 # info is called when you create your Battlesnake on play.battlesnake.com
 # and controls your Battlesnake's appearance
@@ -74,9 +74,9 @@ def process_move(game_state, move, maximizingPlayer):
         snake["head"] = next_head
         game_state["board"]["food"].remove(next_head)
     else:
-        snake["health"] -= 10 #is this the right amount?
+        snake["health"] -= 1
         snake["body"].insert(0, next_head)
-        shake["body"].pop()
+        snake["body"].pop()
     # TODO: Process move where we die or we win.
     # IE: if our length is longer and we can move to their head, make health 1000. Or something similar
     return game_state
@@ -93,21 +93,31 @@ def minimax(game_state, depth, maximizingPlayer):
     snake = get_current_snake(game_state, maximizingPlayer)
     safe_moves = get_safe_moves(possible_moves, snake["body"], game_state["board"])
 
-    if depth == 0 or len(safe_moves) == 0:
-        return eval_function(game_state) # should we add the value of the subtree somewhere?
+    if (len(safe_moves) == 0):
+        return (eval_function(game_state), random.choice(possible_moves))
+    if depth == 0:
+        return (eval_function(game_state), random.choice(safe_moves))
     if maximizingPlayer:
-        value = -sys.maxint
+        value = -sys.maxsize
         best_move = None
         for guess in safe_moves:
-            new_state = process_move(game_state, guess, maximizingPlayer)
-            value, best_move = max(value, minimax(new_state, depth - 1, False))
+            new_state = process_move(copy.deepcopy(game_state), guess, maximizingPlayer)
+            #new_state_value = eval_function(new_state)
+            minimax_value, minimax_best_move = minimax(new_state, depth - 1, False)
+            if minimax_value > value:
+                value = minimax_value
+                best_move = guess
         return (value, best_move)
     else:
-        value = sys.maxint
+        value = sys.maxsize
         best_move = None
         for guess in safe_moves:
-            new_state = process_move(game_state, guess)
-            value, best_move = min(value, minimax(new_state, depth - 1, True))
+            new_state = process_move(copy.deepcopy(game_state), guess, maximizingPlayer)
+            #new_state_value = eval_function(new_state)
+            minimax_value, minimax_best_move = minimax(new_state, depth - 1, True)
+            if minimax_value < value:
+                value = minimax_value
+                best_move = guess
         return (value, best_move)
 
 def get_next(current_head, next_move):
@@ -159,12 +169,7 @@ def get_safe_moves(possible_moves, body, board):
 # Valid moves are "up", "down", "left", or "right"
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
-    possible_moves = ["up", "down", "left", "right"]
-    safe_moves = get_safe_moves(possible_moves, game_state["you"]["body"], game_state["board"])
-    if safe_moves:
-        next_move = random.choice(safe_moves)
-    else:
-        next_move = random.choice(possible_moves)
+    value, next_move = minimax(game_state, 5, True)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}

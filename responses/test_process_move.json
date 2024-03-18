@@ -34,7 +34,7 @@
                 "id": "0a03d1ff-2a2e-4a28-9fec-d576f6450a40",
                 "name": "them",
                 "latency": "306",
-                "health": 83,
+                "health": 23,
                 "body": [
                     {
                         "x": 2,
@@ -96,13 +96,17 @@
             {
                 "x": 9,
                 "y": 6
+            },
+            {
+                "x": 8,
+                "y": 6
             }
         ],
         "head": {
             "x": 10,
             "y": 6
         },
-        "length": 2,
+        "length": 3,
         "shout": "",
         "squad": "",
         "customizations": {
