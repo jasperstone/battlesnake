@@ -39,6 +39,77 @@ def start(game_state: typing.Dict):
 def end(game_state: typing.Dict):
     print("GAME OVER\n")
 
+def manhattan_distance(a, b):
+    return abs(a["x"] - b["x"]) + abs(a["y"] - b["y"])
+
+def food_distance(snake, game_state):
+    distance = 0
+    head = snake["head"]
+    for bite in game_state["board"]["food"]:
+        distance += 1 / manhattan_distance(head, bite)
+    return distance
+
+def snake_eval_function(snake, game_state):
+    length = snake["length"] / 4 # starting snake length?
+    health = snake["health"] / 100
+    distance_to_food = food_distance(snake, game_state)
+    return length + health + distance_to_food
+
+def eval_function(game_state):
+    me = game_state["you"]
+    my_heuristic = snake_eval_function(me, game_state)
+
+    them = game_state["board"]["snakes"][0]
+    their_heuristic = snake_eval_function(them, game_state)
+
+    return my_heuristic - their_heuristic
+
+def process_move(game_state, move, maximizingPlayer):
+    snake = get_current_snake(game_state, maximizingPlayer)
+    next_head = get_next(snake["head"], move)
+    if next_head in game_state["board"]["food"]:
+        snake["length"] += 1
+        snake["health"] = 100
+        snake["body"].insert(0, next_head)
+        snake["head"] = next_head
+        game_state["board"]["food"].remove(next_head)
+    else:
+        snake["health"] -= 10 #is this the right amount?
+        snake["body"].insert(0, next_head)
+        shake["body"].pop()
+    # TODO: Process move where we die or we win.
+    # IE: if our length is longer and we can move to their head, make health 1000. Or something similar
+    return game_state
+
+def get_current_snake(game_state, maximizingPlayer):
+    if maximizingPlayer:
+        return game_state["you"]
+    else:
+        return game_state["board"]["snakes"][0]
+
+def minimax(game_state, depth, maximizingPlayer):
+    possible_moves = ["up", "down", "left", "right"]
+    
+    snake = get_current_snake(game_state, maximizingPlayer)
+    safe_moves = get_safe_moves(possible_moves, snake["body"], game_state["board"])
+
+    if depth == 0 or len(safe_moves) == 0:
+        return eval_function(game_state) # should we add the value of the subtree somewhere?
+    if maximizingPlayer:
+        value = -sys.maxint
+        best_move = None
+        for guess in safe_moves:
+            new_state = process_move(game_state, guess, maximizingPlayer)
+            value, best_move = max(value, minimax(new_state, depth - 1, False))
+        return (value, best_move)
+    else:
+        value = sys.maxint
+        best_move = None
+        for guess in safe_moves:
+            new_state = process_move(game_state, guess)
+            value, best_move = min(value, minimax(new_state, depth - 1, True))
+        return (value, best_move)
+
 def get_next(current_head, next_move):
     """
     return the coordinate of the head if our snake goes that way
