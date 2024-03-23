@@ -46,14 +46,18 @@ def food_distance(snake, game_state):
     distance = 0
     head = snake["head"]
     for bite in game_state["board"]["food"]:
-        distance += 1 / manhattan_distance(head, bite)
+        distance += manhattan_distance(head, bite)
     return distance
 
+def normalize(x, min, max):
+    return (x - min)/(max - min)
+
 def snake_eval_function(snake, game_state):
-    length = snake["length"] / 4 # starting snake length?
-    health = snake["health"] / 100
-    distance_to_food = food_distance(snake, game_state)
-    return length + health + distance_to_food
+    normalized_length = normalize(snake["length"], 0, 121)
+    normalized_health = normalize(snake["health"], 0, 100)
+    normalized_food_dist = normalize(food_distance(snake, game_state), 0, 1210) # food in every space
+    value = normalized_length + normalized_health + normalized_food_dist
+    return value
 
 def eval_function(game_state):
     me = game_state["you"]

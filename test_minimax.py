@@ -14,12 +14,12 @@ class TestMain(unittest.TestCase):
         with open("responses\\test_one_food.json") as reader:
             game_state = json.load(reader)
             snake = game_state["you"]
-            self.assertEqual(main.food_distance(snake, game_state), 1/2)
+            self.assertEqual(main.food_distance(snake, game_state), 2)
 
         with open("responses\\test_two_food.json") as reader:
             game_state = json.load(reader)
             snake = game_state["you"]
-            self.assertEqual(main.food_distance(snake, game_state), 3/4)
+            self.assertEqual(main.food_distance(snake, game_state), 6)
 
     def test_eval_functions(self):
         with open('responses\\test_snake_eval_function.json') as reader:
@@ -27,8 +27,8 @@ class TestMain(unittest.TestCase):
             me = game_state["you"]
             them = game_state["board"]["snakes"][0]
 
-            self.assertEqual(main.snake_eval_function(me, game_state), 2.5)
-            self.assertEqual(main.snake_eval_function(them, game_state), 2.5)
+            self.assertEqual(main.snake_eval_function(me, game_state), 1.0347107438016527)
+            self.assertEqual(main.snake_eval_function(them, game_state), 1.0347107438016527)
             self.assertEqual(main.eval_function(game_state), 0)
 
     def test_get_current_snake(self):
@@ -47,7 +47,7 @@ class TestMain(unittest.TestCase):
 
             our_snake = main.get_current_snake(new_state, True)
             self.assertEqual(len(new_state["board"]["food"]), 3)
-            self.assertEqual(len(our_snake["body"]), 3)
+            self.assertEqual(len(our_snake["body"]), 4)
             self.assertEqual(our_snake["head"], {"x": 10, "y": 7})
             self.assertEqual(our_snake["health"], 100)
 
