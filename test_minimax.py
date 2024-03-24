@@ -27,8 +27,8 @@ class TestMain(unittest.TestCase):
             me = game_state["you"]
             them = game_state["board"]["snakes"][0]
 
-            self.assertEqual(main.snake_eval_function(me, game_state), 1.0347107438016527)
-            self.assertEqual(main.snake_eval_function(them, game_state), 1.0347107438016527)
+            self.assertEqual(main.snake_eval_function(me, game_state), 1.0765361121092345)
+            self.assertEqual(main.snake_eval_function(them, game_state), 1.0765361121092345)
             self.assertEqual(main.eval_function(game_state), 0)
 
     def test_get_current_snake(self):
@@ -43,7 +43,8 @@ class TestMain(unittest.TestCase):
     def test_process_move_eating_food(self):
         with open("responses\\test_process_move.json") as reader:
             game_state = json.load(reader)
-            new_state = main.process_move(game_state, "up", True)
+            snake = main.get_current_snake(game_state, True)
+            new_state = main.process_move(game_state, "up", snake)
 
             our_snake = main.get_current_snake(new_state, True)
             self.assertEqual(len(new_state["board"]["food"]), 3)
@@ -58,8 +59,14 @@ class TestMain(unittest.TestCase):
     def test_minimax(self):
         with open("responses\\test_process_move.json") as reader:
             game_state = json.load(reader)
-            value, best_move = main.minimax(game_state, 2, True)
+            _, best_move = main.minimax(game_state, 1, True)
             self.assertEqual(best_move, "up")
+
+    def test_minimax_food_far_away(self):
+        with open("responses\\test_process_move_far_from_food.json") as reader:
+            game_state = json.load(reader)
+            _, best_move = main.minimax(game_state, 3, True)
+            self.assertEqual(best_move, "right")
 
 if __name__ == '__main__':
     unittest.main()

@@ -42,12 +42,13 @@ def end(game_state: typing.Dict):
 def manhattan_distance(a, b):
     return abs(a["x"] - b["x"]) + abs(a["y"] - b["y"])
 
-def food_distance(snake, game_state):
-    distance = 0
-    head = snake["head"]
-    for bite in game_state["board"]["food"]:
-        distance += manhattan_distance(head, bite)
-    return distance
+def food_count(head, food):
+    radius = 3
+    food_count = 0
+    for bite in food:
+        if abs(head["x"] - bite["x"]) <= radius and abs(head["y"] - bite["y"]) <= radius:
+            food_count += 1
+    return food_count
 
 def normalize(x, min, max):
     return (x - min)/(max - min)
@@ -55,8 +56,9 @@ def normalize(x, min, max):
 def snake_eval_function(snake, game_state):
     normalized_length = normalize(snake["length"], 0, 121)
     normalized_health = normalize(snake["health"], 0, 100)
-    normalized_food_dist = normalize(food_distance(snake, game_state), 0, 1210) # food in every space
-    value = normalized_length + normalized_health + normalized_food_dist
+    count = food_count(snake["head"], game_state["board"]["food"])
+    normalized_food_count = normalize(count, 0, 23)
+    value = normalized_length + normalized_health + normalized_food_count
     return value
 
 def eval_function(game_state):
@@ -81,6 +83,7 @@ def process_move(game_state, move, maximizingPlayer):
         snake["health"] -= 1
         snake["body"].insert(0, next_head)
         snake["body"].pop()
+        snake["head"] = next_head
     # TODO: Process move where we die or we win.
     # IE: if our length is longer and we can move to their head, make health 1000. Or something similar
     return game_state
@@ -97,17 +100,14 @@ def minimax(game_state, depth, maximizingPlayer):
     snake = get_current_snake(game_state, maximizingPlayer)
     safe_moves = get_safe_moves(possible_moves, snake["body"], game_state["board"])
 
-    if (len(safe_moves) == 0):
+    if depth == 0 or len(safe_moves) == 0:
         return (eval_function(game_state), random.choice(possible_moves))
-    if depth == 0:
-        return (eval_function(game_state), random.choice(safe_moves))
     if maximizingPlayer:
         value = -sys.maxsize
         best_move = None
         for guess in safe_moves:
             new_state = process_move(copy.deepcopy(game_state), guess, maximizingPlayer)
-            #new_state_value = eval_function(new_state)
-            minimax_value, minimax_best_move = minimax(new_state, depth - 1, False)
+            minimax_value, _ = minimax(new_state, depth - 1, False)
             if minimax_value > value:
                 value = minimax_value
                 best_move = guess
@@ -117,8 +117,7 @@ def minimax(game_state, depth, maximizingPlayer):
         best_move = None
         for guess in safe_moves:
             new_state = process_move(copy.deepcopy(game_state), guess, maximizingPlayer)
-            #new_state_value = eval_function(new_state)
-            minimax_value, minimax_best_move = minimax(new_state, depth - 1, True)
+            minimax_value, _ = minimax(new_state, depth - 1, True)
             if minimax_value < value:
                 value = minimax_value
                 best_move = guess
@@ -162,7 +161,7 @@ def get_safe_moves(possible_moves, body, board):
     safe_moves = []
     for guess in possible_moves:
         guess_coord = get_next(body[0], guess)
-        if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]): 
+        if avoid_walls(guess_coord, board["width"], board["height"]) and avoid_snakes(guess_coord, board["snakes"]) and guess_coord not in body[:-1]:
             safe_moves.append(guess)
         elif len(body) > 1 and guess_coord == body[-1] and guess_coord not in body[:-1]:
            # The tail is also a safe place to go... unless there is a non-tail segment there too
@@ -173,7 +172,7 @@ def get_safe_moves(possible_moves, body, board):
 # Valid moves are "up", "down", "left", or "right"
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
-    value, next_move = minimax(game_state, 5, True)
+    value, next_move = minimax(game_state, 6, True)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
