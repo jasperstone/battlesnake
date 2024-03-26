@@ -42,7 +42,7 @@ def end(game_state: typing.Dict):
 def manhattan_distance(a, b):
     return abs(a["x"] - b["x"]) + abs(a["y"] - b["y"])
 
-def food_count(head, food):
+def get_food_count(head, food):
     radius = 3
     food_count = 0
     for bite in food:
@@ -56,9 +56,15 @@ def normalize(x, min, max):
 def snake_eval_function(snake, game_state):
     normalized_length = normalize(snake["length"], 0, 121)
     normalized_health = normalize(snake["health"], 0, 100)
-    count = food_count(snake["head"], game_state["board"]["food"])
-    normalized_food_count = normalize(count, 0, 23)
-    value = normalized_length + normalized_health + normalized_food_count
+
+    food_count = get_food_count(snake["head"], game_state["board"]["food"])
+    normalized_food_count = normalize(food_count, 0, 23)
+
+    possible_moves = ["up", "down", "left", "right"]
+    safe_moves = get_safe_moves(possible_moves, snake["body"], game_state["board"])
+    normalized_safe_moves = normalize(len(safe_moves), 0, 3)
+
+    value = normalized_length + normalized_health + normalized_food_count + normalized_safe_moves
     return value
 
 def eval_function(game_state):
@@ -172,7 +178,7 @@ def get_safe_moves(possible_moves, body, board):
 # Valid moves are "up", "down", "left", or "right"
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
-    value, next_move = minimax(game_state, 6, True)
+    value, next_move = minimax(game_state, 5, True)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
