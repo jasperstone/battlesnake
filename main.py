@@ -23,10 +23,10 @@ def info() -> typing.Dict:
 
     return {
         "apiversion": "1",
-        "author": "",  # TODO: Your Battlesnake Username
-        "color": "#888888",  # TODO: Choose color
-        "head": "default",  # TODO: Choose head
-        "tail": "default",  # TODO: Choose tail
+        "author": "Team16",  # TODO: Your Battlesnake Username
+        "color": "#B3A369",  # TODO: Choose color
+        "head": "bee",  # TODO: Choose head
+        "tail": "ion",  # TODO: Choose tail
     }
 
 
@@ -90,8 +90,6 @@ def process_move(game_state, move, maximizingPlayer):
         snake["body"].insert(0, next_head)
         snake["body"].pop()
         snake["head"] = next_head
-    # TODO: Process move where we die or we win.
-    # IE: if our length is longer and we can move to their head, make health 1000. Or something similar
     return game_state
 
 def get_current_snake(game_state, maximizingPlayer):
