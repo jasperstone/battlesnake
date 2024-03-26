@@ -29,7 +29,7 @@ def info() -> typing.Dict:
         "author": "Team16",  # TODO: Your Battlesnake Username
         "color": "#B3A369",  # TODO: Choose color
         "head": "bee",  # TODO: Choose head
-        "tail": "ion",  # TODO: Choose tail
+        "tail": "pirate",  # TODO: Choose tail
     }
 
 
@@ -103,7 +103,7 @@ def get_current_snake(game_state, maximizingPlayer):
     else:
         return game_state["board"]["snakes"][0]
 
-def minimax(game_state, depth, maximizingPlayer):
+def alphabeta(game_state, depth, alpha, beta, maximizingPlayer):
     possible_moves = ["up", "down", "left", "right"]
     
     snake = get_current_snake(game_state, maximizingPlayer)
@@ -116,20 +116,26 @@ def minimax(game_state, depth, maximizingPlayer):
         best_move = None
         for guess in safe_moves:
             new_state = process_move(copy.deepcopy(game_state), guess, maximizingPlayer)
-            minimax_value, _ = minimax(new_state, depth - 1, False)
+            minimax_value, _ = alphabeta(new_state, depth - 1, alpha, beta, False)
+            alpha = max(alpha, value)
             if minimax_value > value:
                 value = minimax_value
                 best_move = guess
+            if value >= beta:
+                break
         return (value, best_move)
     else:
         value = sys.maxsize
         best_move = None
         for guess in safe_moves:
             new_state = process_move(copy.deepcopy(game_state), guess, maximizingPlayer)
-            minimax_value, _ = minimax(new_state, depth - 1, True)
+            minimax_value, _ = alphabeta(new_state, depth - 1, alpha, beta, True)
+            beta = min(beta, value)
             if minimax_value < value:
                 value = minimax_value
                 best_move = guess
+            if value <= alpha:
+                break
         return (value, best_move)
 
 def get_next(current_head, next_move):
@@ -181,7 +187,7 @@ def get_safe_moves(possible_moves, body, board):
 # Valid moves are "up", "down", "left", or "right"
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
-    value, next_move = minimax(game_state, 5, True)
+    _, next_move = alphabeta(game_state, 6, -sys.maxsize, sys.maxsize, True)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}

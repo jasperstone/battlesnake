@@ -1,6 +1,7 @@
 import unittest
 import main
 import json
+import sys
 
 class TestMain(unittest.TestCase):
     def test_manhattan_distance(self):
@@ -49,17 +50,17 @@ class TestMain(unittest.TestCase):
             self.assertEqual(our_snake["head"], {"x": 10, "y": 7})
             self.assertEqual(our_snake["health"], 100)
 
-    def test_minimax(self):
+    def test_alphabeta(self):
         with open("responses\\test_process_move.json") as reader:
             game_state = json.load(reader)
-            _, best_move = main.minimax(game_state, 1, True)
+            _, best_move = main.alphabeta(game_state, 1, -sys.maxsize, sys.maxsize, True)
             self.assertEqual(best_move, "up")
 
     @unittest.skip("not sure why this one is failing")
     def test_minimax_food_far_away(self):
         with open("responses\\test_process_move_far_from_food.json") as reader:
             game_state = json.load(reader)
-            _, best_move = main.minimax(game_state, 3, True)
+            _, best_move = main.alphabeta(game_state, 3, -sys.maxsize, sys.maxsize, True)
             self.assertEqual(best_move, "right")
 
 if __name__ == '__main__':
