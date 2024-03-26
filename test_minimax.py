@@ -9,15 +9,16 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(main.manhattan_distance(a,b), 2)
         self.assertEqual(main.manhattan_distance(b,a), 2)
+    def test_food_count(self):
         with open("responses\\test_one_food.json") as reader:
             game_state = json.load(reader)
             snake = game_state["you"]
-            self.assertEqual(main.get_food_count(snake, game_state), 2)
+            self.assertEqual(main.get_food_count(snake["head"], game_state["board"]["food"]), 1)
 
         with open("responses\\test_two_food.json") as reader:
             game_state = json.load(reader)
             snake = game_state["you"]
-            self.assertEqual(main.get_food_count(snake, game_state), 6)
+            self.assertEqual(main.get_food_count(snake["head"], game_state["board"]["food"]), 2)
 
     def test_eval_functions(self):
         with open('responses\\test_snake_eval_function.json') as reader:
