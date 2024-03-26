@@ -12,8 +12,11 @@
 
 import random
 import typing
+import time
 import sys
 import copy
+
+random_seed = None
 
 # info is called when you create your Battlesnake on play.battlesnake.com
 # and controls your Battlesnake's appearance
@@ -32,6 +35,8 @@ def info() -> typing.Dict:
 
 # start is called when your Battlesnake begins a game
 def start(game_state: typing.Dict):
+    if random_seed is not None:
+        random.seed(random_seed)
     print("GAME START")
 
 
@@ -181,13 +186,14 @@ def move(game_state: typing.Dict) -> typing.Dict:
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
 
-
 # Start server when `python main.py` is run
 if __name__ == "__main__":
     from server import run_server
+
     port = "8000"
     for i in range(len(sys.argv) - 1):
         if sys.argv[i] == '--port':
             port = sys.argv[i+1]
-
+        elif sys.argv[i] == '--seed':
+            random_seed = int(sys.argv[i+1])
     run_server({"info": info, "start": start, "move": move, "end": end, "port": port})
